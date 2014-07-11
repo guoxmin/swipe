@@ -43,7 +43,7 @@ function swipe(container, options){
         transitionStart(to,elem);
     }
     var _swipe = new Swipe(container, options);
-    each(navs,function(i,v){
+    navs&&each(navs,function(i,v){
         v.addEventListener("click",function(){
             _swipe.stop();
             _swipe.slide(i,speed);
