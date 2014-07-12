@@ -12,6 +12,7 @@
 		  	border:1px solid #ccc;
 		}
 		.swipe-wrap {
+			height:100%;
 		  overflow: hidden;
 		}
 		.swipe-wrap > div {
@@ -42,10 +43,10 @@
 window.mySwipe = swipe(document.getElementById('slider'), {
     startSlide: 0,
     speed: 500,
-   	auto:3000,
+   //	auto:3000,
     nav: document.querySelector("#slider div.swipe-nav"),/*空元素，会自动生成导航*/
  	continuous: true,
- 	vertial:true,
+ 	//vertial:true,
     disableScroll: false,
     stopPropagation: false,
     callback: function(index, elem) {
@@ -62,7 +63,7 @@ document.getElementById("prev").onclick = function(){
 	mySwipe.prev();
 }
 document.getElementById("next").onclick = function(){
-	mySwipe.next();
+	mySwipe.slide(2,500);
 }
 </script>
 

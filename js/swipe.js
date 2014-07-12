@@ -121,7 +121,8 @@ function Swipe(container, options) {
         
 
         if (browser.transitions) {
-         if (direction>0) {
+        if(!direction) direction = -Math.abs(index-to) / (index-to);
+        if (direction>0) {
                // next()
                 move(lIndex, -client, 0);
                 move(index, slidePos[index] - client, speed);
