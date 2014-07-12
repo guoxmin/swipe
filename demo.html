@@ -24,7 +24,7 @@
 		}
 		.swipe div.swipe-nav{ position: absolute; right:5px; bottom: 5px; }
 		.swipe div.swipe-nav span{ float:left; float:left;height:6px;width:6px;border-radius:3px;overflow:hidden;text-indent:-999em;margin:2px;background:rgba(255,255,255,.6);}
-		.swipe div.swipe-nav .current{ background:#fff;}
+		.swipe div.swipe-nav .current{ background:#555;}
 	</style>
 </head>
 <body>
@@ -33,24 +33,33 @@
 			<div>滑块1</div>
 			<div>滑块2</div>
 			<div>滑块3</div>
+			<div>滑块4</div>
+			<div>滑块5</div>
 		</div>
 		<div class="swipe-nav"></div>
 	</div>
-
+<button id="prev">prev</button>
+<button id="next">next</button>
 <script type="text/javascript" src="js/swipe.extend.js"></script>
 <script type="text/javascript">
 window.mySwipe = swipe(document.getElementById('slider'), {
     startSlide: 0,
     speed: 400,
-    auto:2000,
+    auto:3000,
     nav: document.querySelector("#slider div.swipe-nav"),/*空元素，会自动生成导航*/
-    continuous: true,
+ 	continuous: true,
     disableScroll: false,
     stopPropagation: false,
     callback: function(index, elem) {},
     transitionStart: function(index, elem) {},
     transitionEnd: function(index, elem) {}
 });
+document.getElementById("prev").onclick = function(){
+	mySwipe.prev();
+}
+document.getElementById("next").onclick = function(){
+	mySwipe.next();
+}
 </script>
 
 </body>

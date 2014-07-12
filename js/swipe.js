@@ -35,26 +35,20 @@ function Swipe(container, options) {
     if (!container) return;
 
     var element = container.children[0];
-    var slides, slidePos, width;
+    var slides=element.children, slidePos, width;
     options = options || {};
     var index = parseInt(options.startSlide, 10) || 0;
     var speed = options.speed || 300;
     var isContinuous = options.continuous;
+    var lIndex,rIndex = isContinuous && index+1>slides.length-1 ? 0:index+1;
 
-    function setup() {
-        // cache slides
-        slides = element.children;
-
-        // create an array to store current positions of each slide
-        slidePos = new Array(slides.length);
-
-        // determine width of each slide
-        width = container.getBoundingClientRect().width || container.offsetWidth;
-        element.style.width = (slides.length * width) + 'px';
-
+    function initPos(){
+        // lIndex = index-1<0 ? (isContinuous?slides.length-1:0):index-1;
+        // rIndex = index+1>slides.length-1 ?(isContinuous ? 0:slides.length-1):index+1;
+        lIndex = isContinuous && index-1<0 ? slides.length-1:index-1;
+        rIndex = isContinuous && index+1>slides.length-1 ? 0:index+1;
         // stack elements
         var pos = slides.length;
-
         while (pos--) {
 
             var slide = slides[pos];
@@ -80,6 +74,19 @@ function Swipe(container, options) {
             }
 
         }
+    }
+
+    function setup() {
+
+        // create an array to store current positions of each slide
+        slidePos = new Array(slides.length);
+
+        // determine width of each slide
+        width = container.getBoundingClientRect().width || container.offsetWidth;
+        element.style.width = (slides.length * width) + 'px';
+
+        initPos();
+
         if (!browser.transitions) element.style.left = (index * -width) + 'px';
         offloadFn(options.transitionStart && options.transitionStart(index, slides[index])); //add by guoxuemin
         container.style.visibility = 'visible';
@@ -87,33 +94,40 @@ function Swipe(container, options) {
     }
 
     function prev() {
-
-        if (index) slide(index - 1);
-        else if (isContinuous) slide(slides.length - 1);
+        if (index)  slide(lIndex,speed,-1);
+        else if (isContinuous)  slide(lIndex,speed,-1);
 
     }
 
     function next() {
-        if (index < slides.length - 1) slide(index + 1);
-        else if (isContinuous) slide(0);
-
+       
+        if (index < slides.length - 1)  slide(rIndex,speed,1);
+        else if (isContinuous)  slide(rIndex,speed,1);
+    
     }
 
-    function slide(to, slideSpeed) {
+    function slide(to, slideSpeed,direction) {
         //add by guoxuemin
         offloadFn(options.transitionStart && options.transitionStart(to, slides[to]));
         // do nothing if already on requested slide
         if (index == to) return;
 
         if (browser.transitions) {
+         if (direction>0) {
+               // next()
+                move(lIndex, -width, 0);
+                move(index, slidePos[index] - width, speed);
+                move( rIndex, slidePos[rIndex] - width, speed);
+                index = rIndex;
+            } else {
 
-            var diff = Math.abs(index - to) - 1;
-            var direction = Math.abs(index - to) / (index - to); // 1:right -1:left
+              // prev
+                move(rIndex, +width, 0);
+                move(index, slidePos[index] + width, speed);
+                move(lIndex, slidePos[lIndex] + width, speed);
+                index = lIndex;
 
-            while (diff--) move((to > index ? to : index) - diff - 1, width * direction, 0);
-
-            move(index, width * direction, slideSpeed || speed);
-            move(to, 0, slideSpeed || speed);
+            }
 
         } else {
 
@@ -209,7 +223,6 @@ function Swipe(container, options) {
     var start = {};
     var delta = {};
     var isScrolling;
-    var lIndex,rIndex;
 
     // setup event capturing
     var events = {
@@ -260,7 +273,7 @@ function Swipe(container, options) {
 
             // reset delta and end measurements
             delta = {};
-
+            initPos();
             // attach touchmove and touchend listeners
             element.addEventListener('touchmove', this, false);
             element.addEventListener('touchend', this, false);
@@ -310,8 +323,6 @@ function Swipe(container, options) {
                 var _index = delta.x > 0 ? index - 1 : index + 1;
 
                 // translate 1:1
-                lIndex = isContinuous && index-1<0 ? slides.length-1:index-1,
-                rIndex = isContinuous && index+1>slides.length-1 ? 0:index+1;
 
                 translate(lIndex, delta.x + slidePos[lIndex], 0);
                 translate(index, delta.x + slidePos[index], 0);
@@ -343,14 +354,15 @@ function Swipe(container, options) {
 
                 if (isValidSlide && !isPastBounds) {
                     if (direction) {
-                        move(lIndex, slidePos[lIndex]-width, 0);
+                        //next
+                       // next()
+                        move(lIndex, -width, 0);
                         move(index, slidePos[index] - width, speed);
                         move( rIndex, slidePos[rIndex] - width, speed);
                         index = rIndex;
-
                     } else {
-
-                        move(rIndex, slidePos[rIndex]+width, 0);
+                      // prev
+                        move(rIndex, +width, 0);
                         move(index, slidePos[index] + width, speed);
                         move(lIndex, slidePos[lIndex] + width, speed);
                         index = lIndex;
@@ -368,14 +380,14 @@ function Swipe(container, options) {
                 }
 
             }
-            setup();
+
             // kill touchmove and touchend event listeners until touchstart called again
             element.removeEventListener('touchmove', events, false)
             element.removeEventListener('touchend', events, false)
 
         },
         transitionEnd: function(event) {
-
+            initPos();
             if (parseInt(event.target.getAttribute('data-index'), 10) == index) {
 
                 if (delay) begin();
