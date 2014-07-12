@@ -54,7 +54,7 @@ function Swipe(container, options) {
         
         // create an array to store current positions of each slide
         slidePos = new Array(slides.length);
-
+        container.style.overflow = "hidden";
         // determine width or height of each slide
         client = container.getBoundingClientRect()[size] || (vertial ? container.offsetHeight:container.offsetWidth);
         element.style[size] = (slides.length * client) + 'px';
