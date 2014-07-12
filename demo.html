@@ -7,18 +7,17 @@
 	<style type="text/css" media="screen">
 		*{ margin:0; padding:0;}
 		.swipe {
-		  overflow: hidden;
-		  position: relative;
-		  border:1px solid #ccc;
+			height:200px;
+		  	overflow: hidden;
+		  	position: relative;
+		  	border:1px solid #ccc;
 		}
 		.swipe-wrap {
 		  overflow: hidden;
 		  position: relative;
 		}
 		.swipe-wrap > div {
-		  float:left;
 		  width:100%;
-		  position: relative;
 		  height:200px;
 		  background-color:#ccc;
 		}
@@ -44,10 +43,11 @@
 <script type="text/javascript">
 window.mySwipe = swipe(document.getElementById('slider'), {
     startSlide: 0,
-    speed: 400,
-    auto:3000,
+    speed: 500,
+   	auto:3000,
     nav: document.querySelector("#slider div.swipe-nav"),/*空元素，会自动生成导航*/
- 	//continuous: true,
+ 	continuous: true,
+ 	vertial:true,
     disableScroll: false,
     stopPropagation: false,
     callback: function(index, elem) {
