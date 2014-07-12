@@ -47,12 +47,18 @@ window.mySwipe = swipe(document.getElementById('slider'), {
     speed: 400,
     auto:3000,
     nav: document.querySelector("#slider div.swipe-nav"),/*空元素，会自动生成导航*/
- 	continuous: true,
+ 	//continuous: true,
     disableScroll: false,
     stopPropagation: false,
-    callback: function(index, elem) {},
-    transitionStart: function(index, elem) {},
-    transitionEnd: function(index, elem) {}
+    callback: function(index, elem) {
+    	//console.log("callback:"+index+","+elem);
+    },
+    transitionStart: function(index, elem) {
+    	//console.log("transitionStart"+index+elem);
+    },
+    transitionEnd: function(index, elem) {
+    	//console.log("transitionEnd"+index+elem);
+    }
 });
 document.getElementById("prev").onclick = function(){
 	mySwipe.prev();

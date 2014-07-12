@@ -40,11 +40,9 @@ function Swipe(container, options) {
     var index = parseInt(options.startSlide, 10) || 0;
     var speed = options.speed || 300;
     var isContinuous = options.continuous;
-    var lIndex,rIndex = isContinuous && index+1>slides.length-1 ? 0:index+1;
+    var lIndex,rIndex,isTransitionStart;
 
     function initPos(){
-        // lIndex = index-1<0 ? (isContinuous?slides.length-1:0):index-1;
-        // rIndex = index+1>slides.length-1 ?(isContinuous ? 0:slides.length-1):index+1;
         lIndex = isContinuous && index-1<0 ? slides.length-1:index-1;
         rIndex = isContinuous && index+1>slides.length-1 ? 0:index+1;
         // stack elements
@@ -107,8 +105,9 @@ function Swipe(container, options) {
     }
 
     function slide(to, slideSpeed,direction) {
-        //add by guoxuemin
-        offloadFn(options.transitionStart && options.transitionStart(to, slides[to]));
+        //避免多次执行
+        !isTransitionStart&&offloadFn(options.transitionStart && options.transitionStart(to, slides[to]));
+
         // do nothing if already on requested slide
         if (index == to) return;
 
@@ -254,6 +253,7 @@ function Swipe(container, options) {
 
         },
         start: function(event) {
+            initPos();
             var touches = event.touches[0];
 
             // measure start values
@@ -273,7 +273,7 @@ function Swipe(container, options) {
 
             // reset delta and end measurements
             delta = {};
-            initPos();
+            isTransitionStart = false;
             // attach touchmove and touchend listeners
             element.addEventListener('touchmove', this, false);
             element.addEventListener('touchend', this, false);
@@ -320,7 +320,7 @@ function Swipe(container, options) {
                     : 1); // no resistance if false
                 }
 
-                var _index = delta.x > 0 ? index - 1 : index + 1;
+                
 
                 // translate 1:1
 
@@ -328,7 +328,9 @@ function Swipe(container, options) {
                 translate(index, delta.x + slidePos[index], 0);
                 translate(rIndex, delta.x + slidePos[rIndex], 0);
 
-                offloadFn(slides[_index] && options.transitionStart && options.transitionStart(_index, slides[_index])); //
+                var _index = delta.x > 0 ? index - 1 : index + 1;
+                !isTransitionStart&&offloadFn(slides[_index] && options.transitionStart && options.transitionStart(_index, slides[_index])); //
+                isTransitionStart = true;
             }
         },
         end: function(event) {
@@ -355,21 +357,20 @@ function Swipe(container, options) {
                 if (isValidSlide && !isPastBounds) {
                     if (direction) {
                         //next
-                       // next()
-                        move(lIndex, -width, 0);
-                        move(index, slidePos[index] - width, speed);
-                        move( rIndex, slidePos[rIndex] - width, speed);
-                        index = rIndex;
+                        next()
+                        // move(lIndex, -width, 0);
+                        // move(index, slidePos[index] - width, speed);
+                        // move( rIndex, slidePos[rIndex] - width, speed);
+                        // index = rIndex;
                     } else {
                       // prev
-                        move(rIndex, +width, 0);
-                        move(index, slidePos[index] + width, speed);
-                        move(lIndex, slidePos[lIndex] + width, speed);
-                        index = lIndex;
+                      prev();
+                        // move(rIndex, +width, 0);
+                        // move(index, slidePos[index] + width, speed);
+                        // move(lIndex, slidePos[lIndex] + width, speed);
+                        // index = lIndex;
 
                     }
-
-                    options.callback && options.callback(index, slides[index]);
 
                 } else {
 
