@@ -40,15 +40,15 @@ function Swipe(container, options) {
     var index = parseInt(options.startSlide, 10) || 0,
         speed = options.speed || 300,
         isContinuous = options.continuous,
-        vertial = options.vertial || false;
+        vertical = options.vertical || false;
 
     var lIndex = index-1,
         rIndex = index+1,
         isTransitionStart,slidePos,client,width,height;
 
-    var size = vertial ? "height":"width",
-        offset = vertial ? "top":"left",
-        xy = vertial ? "y":"x";
+    var size = vertical ? "height":"width",
+        offset = vertical ? "top":"left",
+        xy = vertical ? "y":"x";
 
     function setup() {
         
@@ -56,7 +56,7 @@ function Swipe(container, options) {
         slidePos = new Array(slides.length);
         container.style.overflow = "hidden";
         // determine width or height of each slide
-        client = container.getBoundingClientRect()[size] || (vertial ? container.offsetHeight:container.offsetWidth);
+        client = container.getBoundingClientRect()[size] || (vertical ? container.offsetHeight:container.offsetWidth);
         element.style[size] = (slides.length * client) + 'px';
         var pos = slides.length;
         while (pos--) {
@@ -163,8 +163,8 @@ function Swipe(container, options) {
         var style = slide && slide.style;
 
         if (!style) return;
-        var distX = vertial ? 0:dist,
-            distY = vertial ? dist:0;
+        var distX = vertical ? 0:dist,
+            distY = vertical ? dist:0;
         style.webkitTransitionDuration =
             style.MozTransitionDuration =
             style.msTransitionDuration =
@@ -174,7 +174,7 @@ function Swipe(container, options) {
         style.webkitTransform = 'translate(' + distX + 'px,'+distY+'px)' + 'translateZ(0)';
         style.msTransform =
             style.MozTransform =
-            style.OTransform = vertial ? 'translateY(' + dist + 'px)':'translateX(' + dist + 'px)';
+            style.OTransform = vertical ? 'translateY(' + dist + 'px)':'translateX(' + dist + 'px)';
 
 
     }
@@ -310,7 +310,7 @@ function Swipe(container, options) {
             // determine if scrolling test has run - one time test
            
             if (typeof isScrolling == 'undefined') {
-                isScrolling = !!(isScrolling || Math.abs(delta[vertial ? 'y':'x']) < Math.abs(delta[vertial ? 'x':'y']));
+                isScrolling = !!(isScrolling || Math.abs(delta[vertical ? 'y':'x']) < Math.abs(delta[vertical ? 'x':'y']));
             }
             // if user is not trying to scroll vertically
             if (!isScrolling) {
