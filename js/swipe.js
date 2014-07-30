@@ -67,9 +67,31 @@ function Swipe(container, options) {
             slide.style.position = "relative";
             slide.setAttribute('data-index', pos);
             slide.style[offset] = (pos * -client) + 'px';
+            if (browser.transitions) {
+                var dist = index > pos  ? -client : (index < pos) ? client : 0;
+                if (isContinuous) {
+                    if(index == slides.length - 1 && pos == 0){
+                        dist = client;
+                        rIndex = 0;
+                    }
+                    if(!index && pos == slides.length - 1){
+                        dist = -client;
+                        lIndex = pos;
+                    }
+                }
+
+                 //当前项目不滑动，解决页面加载时的空白问题
+                if(pos!=index){
+                   move(pos, dist, 0); 
+                }else{
+                     slidePos[index] = 0;
+                }
+                
+
+            }
+
         }
 
-        initPos();
 
         if (!browser.transitions) element.style[offset] = (index * -client) + 'px';
         offloadFn(options.transitionStart && options.transitionStart(index, slides[index])); //add by guoxuemin
@@ -92,7 +114,9 @@ function Swipe(container, options) {
                         lIndex = pos;
                     }
                 }
-                move(pos, dist, 0);
+               
+               move(pos, dist, 0);
+               
                 
             }
 
