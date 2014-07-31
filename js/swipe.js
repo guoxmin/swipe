@@ -35,13 +35,23 @@ function Swipe(container, options) {
     if (!container) return;
 
     var element = container.children[0],
-        slides=element.children;
+        slides=element.children,
+        length = slides.length;
 
     var index = parseInt(options.startSlide, 10) || 0,
         speed = options.speed || 300,
         isContinuous = options.continuous,
         vertical = options.vertical || false;
 
+    if(isContinuous){
+        var html = element.innerHTML;
+        if(length==2){
+            element.innerHTML = html + html ;
+        }else if(length== 1){
+            element.innerHTML = html + html + html;
+        }
+    }
+        
     var lIndex = index-1,
         rIndex = index+1,
         isTransitionStart,slidePos,client,width,height;
@@ -65,8 +75,17 @@ function Swipe(container, options) {
             slide.style.display = "inline";
             slide.style.cssFloat = "left";
             slide.style.position = "relative";
-            slide.setAttribute('data-index', pos);
             slide.style[offset] = (pos * -client) + 'px';
+            
+
+            if(length>2){
+                slide.setAttribute('data-index', pos);
+            }else if(length==2){
+                slide.setAttribute('data-index', pos%2);
+            }else if(length== 1){
+                slide.setAttribute('data-index', 0);
+            }
+
             if (browser.transitions) {
                 var dist = index > pos  ? -client : (index < pos) ? client : 0;
                 if (isContinuous) {
@@ -94,7 +113,8 @@ function Swipe(container, options) {
 
 
         if (!browser.transitions) element.style[offset] = (index * -client) + 'px';
-        offloadFn(options.transitionStart && options.transitionStart(index, slides[index])); //add by guoxuemin
+        var callbackIndex = slides[index].getAttribute('data-index');
+        offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[callbackIndex])); //add by guoxuemin
         container.style.visibility = 'visible';
 
     }
@@ -139,7 +159,11 @@ function Swipe(container, options) {
     function slide(to, slideSpeed,direction) {
         if (index == to || to <0 || to>slides.length-1) return;
         //避免多次执行
-       !isTransitionStart&&offloadFn(options.transitionStart && options.transitionStart(to, slides[to]));
+        
+       if(!isTransitionStart){
+            var callbackIndex = slides[to].getAttribute('data-index');
+            offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[callbackIndex]));
+       }
 
         // do nothing if already on requested slide
         
@@ -171,7 +195,9 @@ function Swipe(container, options) {
         lIndex = to-1;
         index = to;
         rIndex = to+1;
-        offloadFn(options.callback && options.callback(index, slides[index]));
+        
+        var callbackIndex = slides[index].getAttribute('data-index');
+        offloadFn(options.callback && options.callback(callbackIndex, slides[callbackIndex]));
 
     }
 
@@ -364,9 +390,13 @@ function Swipe(container, options) {
                 translate(lIndex, delta[xy] + slidePos[lIndex], 0);
                 translate(index, delta[xy] + slidePos[index], 0);
                 translate(rIndex, delta[xy] + slidePos[rIndex], 0);
+                var _index = delta[xy] > 0 ? lIndex:rIndex ;
 
-                var _index = delta[xy] > 0 ? index - 1 : index + 1;
-                !isTransitionStart&&offloadFn(slides[_index] && options.transitionStart && options.transitionStart(_index, slides[_index])); //
+                if(!isTransitionStart && slides[_index]){
+
+                    var callbackIndex = slides[_index].getAttribute('data-index');
+                    offloadFn( options.transitionStart && options.transitionStart(callbackIndex, slides[callbackIndex])); //
+                }
                 isTransitionStart = true;
             }
         },
@@ -411,9 +441,9 @@ function Swipe(container, options) {
 
                 } else {
 
-                    move(index - 1, -client, speed);
+                    move(lIndex, -client, speed);
                     move(index, 0, speed);
-                    move(index + 1, client, speed);
+                    move(rIndex, client, speed);
 
                 }
 
@@ -428,9 +458,10 @@ function Swipe(container, options) {
             initPos();
 
            //确保执行一次
-            if (parseInt(event.target.getAttribute('data-index'), 10) == index) {
+           var dataIndex = parseInt(event.target.getAttribute('data-index'), 10);
+            if (dataIndex == index) {
                 if (delay) begin();
-                options.transitionEnd && options.transitionEnd.call(event, index, slides[index]);
+                options.transitionEnd && options.transitionEnd.call(event, dataIndex, slides[dataIndex]);
 
             }
 
