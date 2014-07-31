@@ -114,7 +114,7 @@ function Swipe(container, options) {
 
         if (!browser.transitions) element.style[offset] = (index * -client) + 'px';
         var callbackIndex = slides[index].getAttribute('data-index');
-        offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[callbackIndex])); //add by guoxuemin
+        offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[index])); //add by guoxuemin
         container.style.visibility = 'visible';
 
     }
@@ -162,7 +162,7 @@ function Swipe(container, options) {
         
        if(!isTransitionStart){
             var callbackIndex = slides[to].getAttribute('data-index');
-            offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[callbackIndex]));
+            offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[to]));
        }
 
         // do nothing if already on requested slide
@@ -197,7 +197,7 @@ function Swipe(container, options) {
         rIndex = to+1;
         
         var callbackIndex = slides[index].getAttribute('data-index');
-        offloadFn(options.callback && options.callback(callbackIndex, slides[callbackIndex]));
+        offloadFn(options.callback && options.callback(callbackIndex, slides[index]));
 
     }
 
@@ -250,8 +250,8 @@ function Swipe(container, options) {
                 element.style[offset] = to + 'px';
 
                 if (delay) begin();
-
-                options.transitionEnd && options.transitionEnd.call(event, index, slides[index]);
+                var callbackIndex = slides[index].getAttribute('data-index');
+                options.transitionEnd && options.transitionEnd.call(event, callbackIndex, slides[index]);
 
                 clearInterval(timer);
                 return;
@@ -395,7 +395,7 @@ function Swipe(container, options) {
                 if(!isTransitionStart && slides[_index]){
 
                     var callbackIndex = slides[_index].getAttribute('data-index');
-                    offloadFn( options.transitionStart && options.transitionStart(callbackIndex, slides[callbackIndex])); //
+                    offloadFn( options.transitionStart && options.transitionStart(callbackIndex, slides[_index])); //
                 }
                 isTransitionStart = true;
             }
@@ -461,7 +461,7 @@ function Swipe(container, options) {
            var dataIndex = parseInt(event.target.getAttribute('data-index'), 10);
             if (dataIndex == index) {
                 if (delay) begin();
-                options.transitionEnd && options.transitionEnd.call(event, dataIndex, slides[dataIndex]);
+                options.transitionEnd && options.transitionEnd.call(event, dataIndex, slides[index]);
 
             }
 

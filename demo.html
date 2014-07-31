@@ -50,10 +50,10 @@ window.mySwipe = swipe(document.getElementById('slider'), {
     disableScroll: false,
     stopPropagation: false,
     callback: function(index, elem) {
-    	console.log("callback:"+index+","+elem.getAttribute('data-index'));
+    	//console.log("callback:"+index+","+elem.getAttribute('data-index'));
     },
     transitionStart: function(index, elem) {
-    	//console.log("callback:"+index+","+elem.getAttribute('data-index'));
+    	console.log("callback:"+index+","+elem.getAttribute('data-index'));
     },
     transitionEnd: function(index, elem) {
     	//console.log("callback:"+index+","+elem.getAttribute('data-index'));
