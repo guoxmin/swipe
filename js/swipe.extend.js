@@ -114,7 +114,8 @@ function Swipe(container, options) {
 
         if (!browser.transitions) element.style[offset] = (index * -client) + 'px';
         var callbackIndex = slides[index].getAttribute('data-index');
-        offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[index])); //add by guoxuemin
+        offloadFn(options.callback && options.callback(callbackIndex, slides[index])); 
+        offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[index])); 
         container.style.visibility = 'visible';
 
     }
