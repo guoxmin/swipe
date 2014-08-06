@@ -396,7 +396,7 @@ function Swipe(container, options) {
                 if(!isTransitionStart && slides[_index]){
 
                     var callbackIndex = slides[_index].getAttribute('data-index');
-                    offloadFn( options.transitionStart && options.transitionStart(callbackIndex, slides[_index])); //
+                    offloadFn( options.transitionStart && options.transitionStart(callbackIndex, slides[_index]));
                 }
                 isTransitionStart = true;
             }
@@ -412,10 +412,12 @@ function Swipe(container, options) {
                 && Math.abs(delta[xy]) > 20 // and if slide amt is greater than 20px
                 || Math.abs(delta[xy]) > client / 2; // or if slide amt is greater than half the client
 
-            // determine if slide attempt is past start and end
-            var isPastBounds =  isContinuous ? false:(!index && delta[xy] > 0 // if first slide and slide amt is greater than 0
-                || index == slides.length - 1 && delta[xy] < 0); // or if last slide and slide amt is less than 0
+            var isPastStart = (!index && delta[xy] > 0),// if first slide and slide amt is greater than 0
+                isPastEnd = (index == slides.length - 1 && delta[xy] < 0); // or if last slide and slide amt is less than 0
 
+            // determine if slide attempt is past start and end
+            var isPastBounds =  isContinuous ? false:isPastStart|| isPastEnd;
+            
             // determine direction of swipe (true:right, false:left)
             var direction = delta[xy] < 0;
 
@@ -445,6 +447,14 @@ function Swipe(container, options) {
                     move(lIndex, -client, speed);
                     move(index, 0, speed);
                     move(rIndex, client, speed);
+                    if(!isContinuous){
+                        if(isPastStart){
+                             offloadFn( options.pastStart && options.pastStart(index, slides[index]));
+                        }
+                        if(isPastEnd){
+                             offloadFn( options.pastEnd && options.pastEnd(index, slides[index]));
+                        }
+                    }
 
                 }
 

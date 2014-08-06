@@ -45,7 +45,7 @@ window.mySwipe = swipe(document.getElementById('slider'), {
     speed: 500,
    //	auto:3000,
     nav: document.querySelector("#slider div.swipe-nav"),/*空元素，会自动生成导航*/
- 	continuous: true,
+ 	//continuous: true,
  	//vertical:true,
     disableScroll: false,
     stopPropagation: false,
@@ -57,7 +57,14 @@ window.mySwipe = swipe(document.getElementById('slider'), {
     },
     transitionEnd: function(index, elem) {
     	//console.log("callback:"+index+","+elem.getAttribute('data-index'));
+    },
+    pastStart:function(index,elem){
+    	//console.log("callback:"+index+","+elem.getAttribute('data-index'));
+    },
+    pastEnd:function(index,elem){
+		//console.log("callback:"+index+","+elem.getAttribute('data-index'));
     }
+
 });
 document.getElementById("prev").onclick = function(){
 	mySwipe.prev();
