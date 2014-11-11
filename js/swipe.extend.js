@@ -77,7 +77,7 @@ function Swipe(container, options) {
             slide.style.position = "relative";
             slide.style[offset] = (pos * -client) + 'px';
             
-
+            slide.setAttribute('data-sindex', pos);
             if(length>2){
                 slide.setAttribute('data-index', pos);
             }else if(length==2){
@@ -151,7 +151,6 @@ function Swipe(container, options) {
     }
 
     function next() {
-       
         if (index < slides.length - 1)  slide(rIndex,speed,1);
         else if (isContinuous)  slide(rIndex,speed,1);
     
@@ -168,7 +167,6 @@ function Swipe(container, options) {
 
         // do nothing if already on requested slide
         
-
         if (browser.transitions) {
         if(!direction) direction = -Math.abs(index-to) / (index-to);
         if (direction>0) {
@@ -469,7 +467,8 @@ function Swipe(container, options) {
             initPos();
 
            //确保执行一次
-           var dataIndex = parseInt(event.target.getAttribute('data-index'), 10);
+          var dataIndex = parseInt(event.target.getAttribute('data-sindex'), 10);
+
             if (dataIndex == index) {
                 if (delay) begin();
                 options.transitionEnd && options.transitionEnd.call(event, dataIndex, slides[index]);
@@ -549,6 +548,9 @@ function Swipe(container, options) {
         },
         start: function() {
             begin();
+        },
+        getNumSlides:function(){
+            return length;
         },
         kill: function() {
 
