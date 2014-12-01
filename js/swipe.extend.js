@@ -60,8 +60,7 @@ function Swipe(container, options) {
         offset = vertical ? "top":"left",
         xy = vertical ? "y":"x";
 
-    function setup() {
-        
+    function reset() {
         // create an array to store current positions of each slide
         slidePos = new Array(slides.length);
         container.style.overflow = "hidden";
@@ -111,15 +110,28 @@ function Swipe(container, options) {
 
         }
 
-
         if (!browser.transitions) element.style[offset] = (index * -client) + 'px';
-        var callbackIndex = slides[index].getAttribute('data-index');
-        offloadFn(options.callback && options.callback(callbackIndex, slides[index])); 
-        offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[index])); 
-        container.style.visibility = 'visible';
+        
 
     }
-    function initPos(){
+
+    function setup(){
+        element = container.children[0],
+        slides=element.children,
+        length = slides.length;
+
+        reset();
+
+    }
+
+    function init(){
+        reset();
+        var callbackIndex = parseInt(slides[index].getAttribute('data-index'));
+        offloadFn(options.callback && options.callback(callbackIndex, slides[index])); 
+        container.style.visibility = 'visible';
+    }
+
+    function updataPos(){
         // stack elements
         var pos = slides.length;
         while (pos--) {
@@ -161,7 +173,7 @@ function Swipe(container, options) {
         //避免多次执行
         
        if(!isTransitionStart){
-            var callbackIndex = slides[to].getAttribute('data-index');
+            var callbackIndex = parseInt(slides[to].getAttribute('data-index'));
             offloadFn(options.transitionStart && options.transitionStart(callbackIndex, slides[to]));
        }
 
@@ -195,7 +207,7 @@ function Swipe(container, options) {
         index = to;
         rIndex = to+1;
         
-        var callbackIndex = slides[index].getAttribute('data-index');
+        var callbackIndex = parseInt(slides[index].getAttribute('data-index'));
         offloadFn(options.callback && options.callback(callbackIndex, slides[index]));
 
     }
@@ -249,7 +261,7 @@ function Swipe(container, options) {
                 element.style[offset] = to + 'px';
 
                 if (delay) begin();
-                var callbackIndex = slides[index].getAttribute('data-index');
+                var callbackIndex = parseInt(slides[index].getAttribute('data-index'));
                 options.transitionEnd && options.transitionEnd.call(event, callbackIndex, slides[index]);
 
                 clearInterval(timer);
@@ -307,7 +319,7 @@ function Swipe(container, options) {
                     offloadFn(this.transitionEnd(event));
                     break;
                 case 'resize':
-                    offloadFn(setup.call());
+                    offloadFn(reset.call());
                     break;
             }
 
@@ -315,7 +327,7 @@ function Swipe(container, options) {
 
         },
         start: function(event) {
-            initPos();
+            updataPos();
             var touches = event.touches[0];
 
             // measure start values
@@ -341,7 +353,7 @@ function Swipe(container, options) {
             element.addEventListener('touchend', this, false);
 
         },
-        move: function(event) {
+        move: function(event) { 
 
             // ensure swiping with one touch and not pinching
             if (event.touches.length > 1 || event.scale && event.scale !== 1) return
@@ -359,7 +371,7 @@ function Swipe(container, options) {
             // determine if scrolling test has run - one time test
            
             if (typeof isScrolling == 'undefined') {
-                isScrolling = !!(isScrolling || Math.abs(delta[vertical ? 'y':'x']) < Math.abs(delta[vertical ? 'x':'y']));
+                isScrolling = !!(isScrolling || Math.abs(delta[vertical ? 'y':'x']) < Math.abs(delta[vertical ? 'x':'y'])*1.2);
             }
             // if user is not trying to scroll vertically
             if (!isScrolling) {
@@ -393,7 +405,7 @@ function Swipe(container, options) {
 
                 if(!isTransitionStart && slides[_index]){
 
-                    var callbackIndex = slides[_index].getAttribute('data-index');
+                    var callbackIndex = parseInt(slides[_index].getAttribute('data-index'));
                     offloadFn( options.transitionStart && options.transitionStart(callbackIndex, slides[_index]));
                 }
                 isTransitionStart = true;
@@ -464,7 +476,8 @@ function Swipe(container, options) {
 
         },
         transitionEnd: function(event) {
-            initPos();
+            
+            updataPos();
 
            //确保执行一次
           var dataIndex = parseInt(event.target.getAttribute('data-sindex'), 10);
@@ -479,8 +492,8 @@ function Swipe(container, options) {
 
     }
 
-    // trigger setup
-    setup();
+    // trigger init
+    init()
 
     // start auto slideshow if applicable
     if (delay) begin();
@@ -506,7 +519,7 @@ function Swipe(container, options) {
     } else {
 
         window.onresize = function() {
-            setup()
+            reset()
         }; // to play nice with old IE
 
     }
@@ -595,7 +608,6 @@ function Swipe(container, options) {
     }
 
 }
-
 if (window.jQuery || window.Zepto) {
     (function($) {
         $.fn.Swipe = function(params) {
@@ -622,11 +634,14 @@ function swipe(container, options){
         speed = options.speed||0,
         transitionStart = options.transitionStart || noop,
         callback = options.callback || noop,
-        nav = options.nav || null;
+        nav = options.nav || null,
+        navs = nav && nav.children;
+
     var element = container.children[0],
         slides = element.children;
+
+
     if(nav){
-        var navs = nav.children;
         if(navs.length>0){
             navs[index].className="current";
         }else{
@@ -637,12 +652,18 @@ function swipe(container, options){
             nav.innerHTML = temp;
             navs = nav.children;
         }
-        options.callback = function(i,elem){
+        
+
+    }
+
+    options.callback = function(i,elem){
+        if(nav){
             navs[index].className = "";
             navs[i].className="current";
-            callback(i,elem);
             index = i;
         }
+        callback(i,elem);
+        loadImg(elem);
     }
     options.transitionStart = function(to,elem){
         loadImg(elem);
@@ -667,12 +688,9 @@ function swipe(container, options){
         each(imgs,function(i,o){
             var src2 = o.getAttribute("src2"),_img = new Image();
             _img.onload = function(){
-                o.style.cssText = "filter:alpha(opacity=30);opacity:0.3;";
                 o.setAttribute("src", src2);
                 o.removeAttribute("src2");
-                setTimeout(function(){
-                   o.style.cssText = "filter:alpha(opacity=100);opacity:1;-webkit-transition:250ms;-moz-transition:250ms;transition:250ms;";
-                }, 5);
+                
             }
             _img.src = src2;
         });
